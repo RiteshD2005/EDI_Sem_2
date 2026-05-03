@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getValidToken } from "@/utils/auth";
 import { API_BASE_URL } from "@/lib/api";
 import {
   CheckCircle,
@@ -24,6 +25,7 @@ import {
   Building2,
   GraduationCap,
 } from "lucide-react";
+import router from "next/router";
 
 // Booking type
 type Booking = {
@@ -91,8 +93,12 @@ export default function AdminDashboard() {
 
   // Fetch bookings
   const fetchBookings = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
+    const token = getValidToken();
+
+    if (!token) {
+      router.push("/login");
+      return;
+    }
     try {
       setLoading(true);
       const res = await fetch(`${API_BASE_URL}/admin/bookings`, {
@@ -292,21 +298,19 @@ export default function AdminDashboard() {
       <div className="flex gap-2 mt-4 border-b border-gray-200 pb-2">
         <button
           onClick={() => setActiveSection("BOOKINGS")}
-          className={`px-4 py-2 rounded-lg font-medium transition ${
-            activeSection === "BOOKINGS"
+          className={`px-4 py-2 rounded-lg font-medium transition ${activeSection === "BOOKINGS"
               ? "bg-indigo-600 text-white shadow"
               : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-          }`}
+            }`}
         >
           📋 Bookings
         </button>
         <button
           onClick={() => setActiveSection("TNP")}
-          className={`px-4 py-2 rounded-lg font-medium transition ${
-            activeSection === "TNP"
+          className={`px-4 py-2 rounded-lg font-medium transition ${activeSection === "TNP"
               ? "bg-indigo-600 text-white shadow"
               : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-          }`}
+            }`}
         >
           🎓 TNP Requests
         </button>
@@ -330,17 +334,16 @@ export default function AdminDashboard() {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-                    activeTab === tab
+                  className={`rounded-full px-4 py-2 text-sm font-medium transition ${activeTab === tab
                       ? "bg-indigo-600 text-white shadow"
                       : "bg-white text-gray-600 hover:bg-gray-100"
-                  }`}
+                    }`}
                 >
                   {tab === "PENDING"
                     ? "Pending"
                     : tab === "APPROVED"
-                    ? "Approved"
-                    : "Rejected / Cancelled"}
+                      ? "Approved"
+                      : "Rejected / Cancelled"}
                 </button>
               ))}
             </div>
@@ -421,11 +424,10 @@ export default function AdminDashboard() {
                         <button
                           key={pageNum}
                           onClick={() => setCurrentPage(pageNum)}
-                          className={`px-4 py-2 text-sm font-semibold ${
-                            currentPage === pageNum
+                          className={`px-4 py-2 text-sm font-semibold ${currentPage === pageNum
                               ? "bg-indigo-600 text-white"
                               : "text-gray-900 ring-1 ring-gray-300 hover:bg-gray-50"
-                          }`}
+                            }`}
                         >
                           {pageNum}
                         </button>
@@ -467,13 +469,12 @@ export default function AdminDashboard() {
                     <p className="text-sm text-gray-500 mt-0.5">{req.driveType}</p>
                   </div>
                   <span
-                    className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                      req.status === "PENDING"
+                    className={`px-3 py-1 rounded-full text-xs font-semibold ${req.status === "PENDING"
                         ? "bg-yellow-100 text-yellow-800"
                         : req.status === "APPROVED"
-                        ? "bg-green-100 text-green-800"
-                        : "bg-red-100 text-red-800"
-                    }`}
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
                   >
                     {req.status}
                   </span>

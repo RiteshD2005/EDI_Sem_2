@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { API_BASE_URL } from "@/lib/api";
+import { getValidToken } from "@/utils/auth";
 import {
   Calendar,
   Clock,
@@ -15,6 +16,7 @@ import {
   Tag,
   ArrowLeft,
 } from "lucide-react";
+import { get } from "http";
 
 interface Hall {
   id: number;
@@ -126,7 +128,7 @@ export default function RequestPage() {
   const eventTypes = ["Seminar", "Workshop", "Conference", "Guest Lecture", "Cultural", "Other"];
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = getValidToken();
     if (!token) {
       router.push("/login");
       return;

@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { API_BASE_URL } from "@/lib/api";
+import { getValidToken } from "@/utils/auth";
+import router from "next/router";
 
 type RawBooking = {
   date?: string;
@@ -32,7 +34,11 @@ export default function MonthlyViewPage() {
   const today = new Date();
   const [month, setMonth] = useState(today.getMonth() + 1);
   const [year, setYear] = useState(today.getFullYear());
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const token = getValidToken();
+
+  if (!token) {
+    router.push("/login");
+  }
 
   const generateEmptyRows = useCallback(() => {
     const daysInMonth = new Date(year, month, 0).getDate();
@@ -66,7 +72,7 @@ export default function MonthlyViewPage() {
         try {
           const errorBody = await res.text();
           if (errorBody) errorText += `: ${errorBody}`;
-        } catch {}
+        } catch { }
         throw new Error(errorText);
       }
       const data = await res.json();

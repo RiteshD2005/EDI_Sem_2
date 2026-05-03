@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { API_BASE_URL } from "@/lib/api";
+import { getValidToken } from "@/utils/auth";
 
 interface Hall {
   id: number;
@@ -70,8 +71,12 @@ export default function TnpForm({ halls }: { halls: Hall[] }) {
   };
 
   const checkConflicts = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) throw new Error("Unauthorized");
+    const token = getValidToken();
+
+    if (!token) {
+      router.push("/login");
+    }
+
 
     const res = await fetch(`${API_BASE_URL}/api/tnp/check-conflicts`, {
       method: "POST",

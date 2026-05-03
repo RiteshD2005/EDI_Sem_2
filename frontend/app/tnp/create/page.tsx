@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { API_BASE_URL } from "@/lib/api";
+import { getValidToken } from "@/utils/auth";
 import { ArrowLeft, Calendar, Clock, Users, Building2, Check, X, AlertCircle, Wand2, ChevronDown, ChevronUp } from "lucide-react";
 
 interface Hall {
@@ -63,7 +64,7 @@ export default function CreateTnpPage() {
   const [conflictError, setConflictError] = useState("");
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = getValidToken();
     if (!token) {
       router.push("/login");
       return;

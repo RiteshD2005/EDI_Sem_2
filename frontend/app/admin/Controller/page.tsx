@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getValidToken } from "@/utils/auth";
 import { API_BASE_URL } from "@/lib/api";
+
 import {
   Building2,
   Users,
@@ -13,6 +15,7 @@ import {
   Loader2,
   AlertCircle,
 } from "lucide-react";
+import router from "next/router";
 
 type Hall = {
   id: number;
@@ -39,7 +42,11 @@ export default function AdminControllerPage() {
   const [visibility, setVisibility] = useState("PUBLIC");
   const [coordinatorEmail, setCoordinatorEmail] = useState("");
 
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const token = getValidToken();
+
+  if (!token) {
+    router.push("/login");
+  }
 
   // Auto-dismiss notification after 4 seconds
   useEffect(() => {

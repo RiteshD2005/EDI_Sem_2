@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { API_BASE_URL } from "@/lib/api";
+import { getValidToken } from "@/utils/auth";
 import {
   User,
   Mail,
@@ -17,6 +18,7 @@ import {
   AlertCircle,
   ArrowLeft,
 } from "lucide-react";
+import { get } from "http";
 
 type User = {
   id: number;
@@ -42,8 +44,7 @@ export default function ProfilePage() {
   const [statsError, setStatsError] = useState(false);
   const [error, setError] = useState("");
 
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-
+  const token = getValidToken();
   useEffect(() => {
     if (!token) {
       router.push("/login");

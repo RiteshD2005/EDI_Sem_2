@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { API_BASE_URL } from "@/lib/api";
+import { getValidToken } from "@/utils/auth";
 import {
   Calendar,
   Clock,
@@ -57,7 +58,7 @@ export default function HistoryPage() {
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = getValidToken();
     if (!token) {
       router.push("/login");
       return;

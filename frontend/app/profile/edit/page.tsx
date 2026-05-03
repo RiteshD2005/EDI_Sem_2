@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { API_BASE_URL } from "@/lib/api";
+import { getValidToken } from "@/utils/auth";
 
 export default function EditProfilePage() {
   const router = useRouter();
@@ -10,18 +11,14 @@ export default function EditProfilePage() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
+  const token = getValidToken();
 
-  const token =
-    typeof window !== "undefined"
-      ? localStorage.getItem("token")
-      : null;
+  if (!token) {
+    router.push("/login");
+  }
+
 
   useEffect(() => {
-    if (!token) {
-      router.push("/login");
-      return;
-    }
-
     // 🔥 Load existing data
     fetch(`${API_BASE_URL}/user/me`, {
       headers: { Authorization: `Bearer ${token}` },

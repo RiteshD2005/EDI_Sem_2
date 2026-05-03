@@ -4,6 +4,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { API_BASE_URL } from "@/lib/api";
+import { getValidToken } from "@/utils/auth";
 import { ArrowLeft, Calendar as CalendarIcon, Loader2, AlertCircle, Clock } from "lucide-react";
 
 type Hall = {
@@ -39,8 +40,12 @@ export default function CalendarAvailabilityPage() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [bookingsForSelectedDate, setBookingsForSelectedDate] = useState<Event[]>([]);
   const [error, setError] = useState("");
+  const token = getValidToken();
 
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  if (!token) {
+    router.push("/login");
+  }
+
   const loadingRef = useRef(false);
   const lastLoadedRef = useRef<{ hallId: number | null; year: number; month: number }>({
     hallId: null,

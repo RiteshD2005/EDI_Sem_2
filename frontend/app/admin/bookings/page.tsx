@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { API_BASE_URL } from '@/lib/api';
+import { getValidToken } from "@/utils/auth";
+import router from "next/router";
 
 
 type Slot = {
     start: string;
     end: string;
-    status: "FREE" | "BOOKED" |"TNP";
+    status: "FREE" | "BOOKED" | "TNP";
     event?: string;
     hall?: string;
 };
@@ -19,7 +21,11 @@ export default function BookingSlotsPage() {
     const [halls, setHalls] = useState([]);
 
     const fetchSlots = async () => {
-        const token = localStorage.getItem("token");
+        const token = getValidToken();
+
+        if (!token) {
+            router.push("/login");
+        }
 
         const res = await fetch(`${API_BASE_URL}/admin/slots?hallId=${hallId}&date=${date}`,
             {

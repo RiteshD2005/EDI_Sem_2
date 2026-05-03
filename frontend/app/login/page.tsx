@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { API_BASE_URL } from "@/lib/api";
+import { getValidToken } from "@/utils/auth";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -41,7 +42,16 @@ export default function LoginPage() {
       }
 
       const data = await response.json();
-      localStorage.setItem("token", data.token);
+
+      const expiryTime = new Date().getTime() + 60 * 60 * 1000; // 1 hour
+
+      localStorage.setItem(
+        "auth",
+        JSON.stringify({
+          token: data.token,
+          expiry: expiryTime,
+        })
+      );
       localStorage.setItem("user", JSON.stringify(data.user));
       localStorage.setItem("rememberMe", JSON.stringify(rememberMe));
       // console.log("Login successful:", data);

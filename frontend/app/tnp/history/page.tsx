@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { API_BASE_URL } from "@/lib/api";
+import { getValidToken } from "@/utils/auth";
 import { Loader2, Calendar, Building2, ArrowLeft } from "lucide-react";
 
 type Hall = {
@@ -19,7 +20,7 @@ type Request = {
   startTime: string;
   endTime: string;
   expectedStudents: number;
-  status: "PENDING" | "APPROVED" | "REJECTED" | null; // null possible from backend
+  status: "PENDING" | "APPROVED" | "REJECTED" ; // null possible from backend
   halls: Hall[] | string[];
 };
 
@@ -30,7 +31,7 @@ export default function TnpHistoryPage() {
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = getValidToken();
     if (!token) {
       router.push("/login");
       return;

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { API_BASE_URL } from "@/lib/api";
+import { getValidToken } from "@/utils/auth";
 import {
   Calendar,
   Clock,
@@ -13,6 +14,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import Image from "next/image";
+import { get } from "http";
 
 export default function HomePage() {
   const router = useRouter();
@@ -29,7 +31,7 @@ export default function HomePage() {
   const [halls, setHalls] = useState<any[]>([]);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = getValidToken();
     if (!token) {
       router.push("/login");
       return;

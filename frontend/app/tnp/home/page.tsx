@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { getValidToken } from "@/utils/auth";
 import {
   Calendar,
   Clock,
@@ -15,6 +16,7 @@ import {
   Users,
   FileText,
 } from "lucide-react";
+import { get } from "http";
 
 export default function TnpHomePage() {
   const router = useRouter();
@@ -30,7 +32,7 @@ export default function TnpHomePage() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = getValidToken();
     if (!token) {
       router.push("/login");
     }
