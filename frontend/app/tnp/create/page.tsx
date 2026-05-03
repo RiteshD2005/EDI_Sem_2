@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { API_BASE_URL } from "@/lib/api";
 import { ArrowLeft, Calendar, Clock, Users, Building2, Check, X, AlertCircle, Wand2, ChevronDown, ChevronUp } from "lucide-react";
 
 interface Hall {
@@ -69,7 +70,7 @@ export default function CreateTnpPage() {
     }
 
     setLoadingHalls(true);
-    fetch("http://localhost:8080/halls", {
+    fetch(`${API_BASE_URL}/halls`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {
@@ -187,7 +188,7 @@ export default function CreateTnpPage() {
     const token = localStorage.getItem("token");
     if (!token) throw new Error("Unauthorized");
 
-    const res = await fetch("http://localhost:8080/api/tnp/check-conflicts", {
+    const res = await fetch(`${API_BASE_URL}/api/tnp/check-conflicts`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -227,7 +228,7 @@ export default function CreateTnpPage() {
       }
 
       const token = localStorage.getItem("token");
-      const createRes = await fetch("http://localhost:8080/api/tnp/create", {
+      const createRes = await fetch(`${API_BASE_URL}/api/tnp/create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { API_BASE_URL } from "@/lib/api";
 import {
   Building2,
   Users,
@@ -57,7 +58,7 @@ export default function AdminControllerPage() {
     }
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:8080/admin/halls", {
+      const res = await fetch(`${API_BASE_URL}/admin/halls`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) {
@@ -104,7 +105,7 @@ export default function AdminControllerPage() {
     }
 
     try {
-      const res = await fetch("http://localhost:8080/admin/halls/addhall", {
+      const res = await fetch(`${API_BASE_URL}/admin/halls/addhall`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -164,7 +165,7 @@ export default function AdminControllerPage() {
     setTogglingId(id);
 
     try {
-      const res = await fetch(`http://localhost:8080/halls/${id}/toggle`, {
+      const res = await fetch(`${API_BASE_URL}halls/${id}/toggle`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -211,7 +212,7 @@ export default function AdminControllerPage() {
     }
     setAddingAdmin(true);
     try {
-      const res = await fetch("http://localhost:8080/admin/add-admin", {
+      const res = await fetch(`${API_BASE_URL}/admin/add-admin`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

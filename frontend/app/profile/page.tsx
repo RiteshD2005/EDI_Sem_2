@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { API_BASE_URL } from "@/lib/api";
 import {
   User,
   Mail,
@@ -51,7 +52,7 @@ export default function ProfilePage() {
 
     const fetchProfile = async () => {
       try {
-        const userRes = await fetch("http://localhost:8080/user/profile", {
+        const userRes = await fetch(`${API_BASE_URL}/user/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!userRes.ok) throw new Error("Failed to fetch profile");
@@ -60,7 +61,7 @@ export default function ProfilePage() {
         setUser(userData);
 
         try {
-          const statsRes = await fetch("http://localhost:8080/booking/my-stats", {
+          const statsRes = await fetch(`${API_BASE_URL}/booking/my-stats`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           if (statsRes.ok) {

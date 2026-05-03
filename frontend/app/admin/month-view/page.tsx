@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { API_BASE_URL } from "@/lib/api";
 
 type RawBooking = {
   date?: string;
@@ -55,7 +56,7 @@ export default function MonthlyViewPage() {
     setLoading(true);
     setError(null);
     try {
-      const url = `http://localhost:8080/admin/month-view?year=${year}&month=${month}`;
+      const url = `${API_BASE_URL}/admin/month-view?year=${year}&month=${month}`;
       console.log("Fetching:", url);
       const res = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` },

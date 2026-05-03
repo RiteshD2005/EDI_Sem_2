@@ -22,7 +22,7 @@ export default function EditProfilePage() {
     }
 
     // 🔥 Load existing data
-    fetch("http://localhost:8080/user/me", {
+    fetch(`${API_BASE_URL}/user/me`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
@@ -36,7 +36,7 @@ export default function EditProfilePage() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:8080/user/update", {
+      const res = await fetch(`${API_BASE_URL}/user/update`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

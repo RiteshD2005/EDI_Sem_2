@@ -3,6 +3,7 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { API_BASE_URL } from "@/lib/api";
 import { ArrowLeft, Calendar as CalendarIcon, Loader2, AlertCircle, Clock } from "lucide-react";
 
 type Hall = {
@@ -64,7 +65,7 @@ export default function CalendarAvailabilityPage() {
   const fetchDayOverview = useCallback(
     async (date: Date): Promise<Event[]> => {
       const dateStr = formatDateKey(date);
-      const url = `http://localhost:8080/booking/day-overview?date=${dateStr}`;
+      const url = `${API_BASE_URL}/booking/day-overview?date=${dateStr}`;
       try {
         const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
         if (res.status === 404) return [];
@@ -175,7 +176,7 @@ export default function CalendarAvailabilityPage() {
   useEffect(() => {
     const fetchHalls = async () => {
       try {
-        const res = await fetch("http://localhost:8080/halls", {
+        const res = await fetch(`${API_BASE_URL}/halls`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) throw new Error("Failed to fetch halls");

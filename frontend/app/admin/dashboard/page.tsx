@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { API_BASE_URL } from "@/lib/api";
 import {
   CheckCircle,
   XCircle,
@@ -94,7 +95,7 @@ export default function AdminDashboard() {
     if (!token) return;
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:8080/admin/bookings", {
+      const res = await fetch(`${API_BASE_URL}/admin/bookings`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -112,7 +113,7 @@ export default function AdminDashboard() {
     if (!token) return;
     try {
       setTnpLoading(true);
-      const res = await fetch("http://localhost:8080/api/tnp/pending", {
+      const res = await fetch(`${API_BASE_URL}/api/tnp/pending`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error("Failed to fetch TNP requests");
@@ -169,8 +170,8 @@ export default function AdminDashboard() {
     try {
       const url =
         action === "APPROVE"
-          ? `http://localhost:8080/admin/approve/${id}`
-          : `http://localhost:8080/admin/reject/${id}?note=${encodeURIComponent(adminNote)}`;
+          ? `${API_BASE_URL}/admin/approve/${id}`
+          : `${API_BASE_URL}/admin/reject/${id}?note=${encodeURIComponent(adminNote)}`;
       const res = await fetch(url, { method: "PUT", headers: { Authorization: `Bearer ${token}` } });
       if (!res.ok) {
         const text = await res.text();
@@ -195,7 +196,7 @@ export default function AdminDashboard() {
     if (!token) return;
     setTnpActionLoading(id);
     try {
-      const res = await fetch(`http://localhost:8080/api/tnp/approve/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/tnp/approve/${id}`, {
         method: "PUT",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -217,7 +218,7 @@ export default function AdminDashboard() {
     if (!token) return;
     setTnpActionLoading(id);
     try {
-      const url = `http://localhost:8080/api/tnp/reject/${id}${reason ? `?note=${encodeURIComponent(reason)}` : ""}`;
+      const url = `${API_BASE_URL}/api/tnp/reject/${id}${reason ? `?note=${encodeURIComponent(reason)}` : ""}`;
       const res = await fetch(url, { method: "PUT", headers: { Authorization: `Bearer ${token}` } });
       if (!res.ok) throw new Error("Rejection failed");
       alert("TNP request rejected");
@@ -312,7 +313,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Metric Cards (only for Bookings section) */}
-      if (activeSection === "BOOKINGS") {
+      if (activeSection === `BOOKINGS`) {
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
           <MetricCard title="Total Requests" value={stats.total} color="blue" />
           <MetricCard title="Pending Requests" value={stats.pending} color="yellow" />

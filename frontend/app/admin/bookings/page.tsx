@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { API_BASE_URL } from '@/lib/api';
+
 
 type Slot = {
     start: string;
@@ -19,8 +21,7 @@ export default function BookingSlotsPage() {
     const fetchSlots = async () => {
         const token = localStorage.getItem("token");
 
-        const res = await fetch(
-            `http://localhost:8080/admin/slots?hallId=${hallId}&date=${date}`,
+        const res = await fetch(`${API_BASE_URL}/admin/slots?hallId=${hallId}&date=${date}`,
             {
                 headers: { Authorization: `Bearer ${token}` },
             }
@@ -48,7 +49,7 @@ export default function BookingSlotsPage() {
     useEffect(() => {
         const token = localStorage.getItem("token");
 
-        fetch("http://localhost:8080/admin/halls", {
+        fetch(`${API_BASE_URL}/admin/halls`, {
             headers: { Authorization: `Bearer ${token}` },
         })
             .then(res => res.json())

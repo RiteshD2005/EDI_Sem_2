@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { API_BASE_URL } from "@/lib/api";
 import {
   Calendar,
   Clock,
@@ -62,7 +63,7 @@ export default function HistoryPage() {
       return;
     }
 
-    fetch("http://localhost:8080/booking/my-history", {
+    fetch(`${API_BASE_URL}/booking/my-history`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(async (res) => {

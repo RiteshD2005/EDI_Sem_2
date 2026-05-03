@@ -146,7 +146,7 @@ export default function RequestPage() {
     const fetchHalls = async () => {
       setLoadingHalls(true);
       try {
-        const response = await fetch("http://localhost:8080/halls", {
+        const response = await fetch(`${API_BASE_URL}/halls`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

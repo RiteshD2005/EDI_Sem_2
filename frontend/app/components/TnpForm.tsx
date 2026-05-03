@@ -4,6 +4,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+import { API_BASE_URL } from "@/lib/api";
 
 interface Hall {
   id: number;
@@ -72,7 +73,7 @@ export default function TnpForm({ halls }: { halls: Hall[] }) {
     const token = localStorage.getItem("token");
     if (!token) throw new Error("Unauthorized");
 
-    const res = await fetch("http://localhost:8080/api/tnp/check-conflicts", {
+    const res = await fetch(`${API_BASE_URL}/api/tnp/check-conflicts`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -112,7 +113,7 @@ export default function TnpForm({ halls }: { halls: Hall[] }) {
       }
 
       const token = localStorage.getItem("token");
-      const createRes = await fetch("http://localhost:8080/api/tnp/create", {
+      const createRes = await fetch(`${API_BASE_URL}/api/tnp/create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

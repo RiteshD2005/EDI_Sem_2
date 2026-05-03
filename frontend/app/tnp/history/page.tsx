@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { API_BASE_URL } from "@/lib/api";
 import { Loader2, Calendar, Building2, ArrowLeft } from "lucide-react";
 
 type Hall = {
@@ -35,7 +36,7 @@ export default function TnpHistoryPage() {
       return;
     }
 
-    fetch("http://localhost:8080/api/tnp/my-requests", {
+    fetch(`${API_BASE_URL}/api/tnp/my-requests`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(async (res) => {

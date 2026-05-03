@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { API_BASE_URL } from "@/lib/api";
 import {
   Calendar,
   Clock,
@@ -34,7 +35,7 @@ export default function HomePage() {
       return;
     }
 
-    fetch("http://localhost:8080/halls", {
+    fetch(`${API_BASE_URL}/halls`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
