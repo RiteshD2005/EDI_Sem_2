@@ -3,8 +3,7 @@
 import { useState, useEffect } from "react";
 import { API_BASE_URL } from '@/lib/api';
 import { getValidToken } from "@/utils/auth";
-import router from "next/router";
-
+import { useRouter } from "next/navigation";
 
 type Slot = {
     start: string;
@@ -19,7 +18,8 @@ export default function BookingSlotsPage() {
     const [date, setDate] = useState("");
     const [slots, setSlots] = useState<Slot[]>([]);
     const [halls, setHalls] = useState([]);
-
+    const router = useRouter();
+    
     const fetchSlots = async () => {
         const token = getValidToken();
 

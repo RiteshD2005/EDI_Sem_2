@@ -1,10 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getValidToken } from "@/utils/auth";
-import { API_BASE_URL } from "@/lib/api";
-// import { useRouter } from "next/navigation";
-
 import {
   Building2,
   Users,
@@ -16,7 +12,6 @@ import {
   Loader2,
   AlertCircle,
 } from "lucide-react";
-import router from "next/router";
 
 type Hall = {
   id: number;
@@ -34,7 +29,7 @@ export default function AdminControllerPage() {
   const [notification, setNotification] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const [hallName, setHallName] = useState("");
   const [capacity, setCapacity] = useState("");
-  const [location, setLocation] = useState("");
+  const [hallLocation, setHallLocation] = useState("");
   const [imageLinks, setImageLinks] = useState<string[]>([]);
   const [imageInput, setImageInput] = useState("");
   const [amenityInput, setAmenityInput] = useState("");
@@ -43,11 +38,7 @@ export default function AdminControllerPage() {
   const [visibility, setVisibility] = useState("PUBLIC");
   const [coordinatorEmail, setCoordinatorEmail] = useState("");
 
-  const token = getValidToken();
-
-  if (!token) {
-    router.push("/login");
-  }
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
   // Auto-dismiss notification after 4 seconds
   useEffect(() => {
@@ -66,7 +57,7 @@ export default function AdminControllerPage() {
     }
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/admin/halls`, {
+      const res = await fetch("http://localhost:8080/admin/halls", {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) {
@@ -105,7 +96,7 @@ export default function AdminControllerPage() {
   };
 
   const addHall = async () => {
-    const token = getValidToken();
+    const token = localStorage.getItem("token");
 
     if (!hallName || !capacity) {
       alert("Name and capacity required");
@@ -113,7 +104,7 @@ export default function AdminControllerPage() {
     }
 
     try {
-      const res = await fetch(`${API_BASE_URL}/admin/halls/addhall`, {
+      const res = await fetch("http://localhost:8080/admin/halls/addhall", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -122,7 +113,7 @@ export default function AdminControllerPage() {
         body: JSON.stringify({
           name: hallName,
           capacity: Number(capacity),
-          location,
+          location: hallLocation,
           amenities: amenities,
           imageUrls: imageLinks,
 
@@ -142,7 +133,7 @@ export default function AdminControllerPage() {
 
       setHallName("");
       setCapacity("");
-      setLocation("");
+      setHallLocation("");
       setAmenities([]);
 
       fetchHalls(); // 🔥 refresh list
@@ -173,7 +164,7 @@ export default function AdminControllerPage() {
     setTogglingId(id);
 
     try {
-      const res = await fetch(`${API_BASE_URL}halls/${id}/toggle`, {
+      const res = await fetch(`http://localhost:8080/halls/${id}/toggle`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -220,7 +211,7 @@ export default function AdminControllerPage() {
     }
     setAddingAdmin(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/admin/add-admin`, {
+      const res = await fetch("http://localhost:8080/admin/add-admin", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -339,8 +330,8 @@ export default function AdminControllerPage() {
             <input
               type="text"
               placeholder="Location"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
+              value={hallLocation}
+              onChange={(e) => setHallLocation(e.target.value)}
               className="border px-3 py-2 rounded-lg text-sm"
             />
 

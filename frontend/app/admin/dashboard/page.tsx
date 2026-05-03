@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { getValidToken } from "@/utils/auth";
 import { API_BASE_URL } from "@/lib/api";
+import { useRouter } from "next/navigation";
+
 import {
   CheckCircle,
   XCircle,
@@ -84,6 +86,7 @@ export default function AdminDashboard() {
   const [actionLoading, setActionLoading] = useState(false);
   const [actionType, setActionType] = useState<"APPROVE" | "REJECT" | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const router = useRouter();
 
   // TNP state
   const [tnpRequests, setTnpRequests] = useState<TnpRequest[]>([]);

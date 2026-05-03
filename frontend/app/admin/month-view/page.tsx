@@ -3,7 +3,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { API_BASE_URL } from "@/lib/api";
 import { getValidToken } from "@/utils/auth";
-import router from "next/router";
+import { useRouter } from "next/navigation";
+
 
 type RawBooking = {
   date?: string;
@@ -35,6 +36,7 @@ export default function MonthlyViewPage() {
   const [month, setMonth] = useState(today.getMonth() + 1);
   const [year, setYear] = useState(today.getFullYear());
   const token = getValidToken();
+const router = useRouter();
 
   if (!token) {
     router.push("/login");
