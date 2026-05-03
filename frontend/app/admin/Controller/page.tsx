@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { getValidToken } from "@/utils/auth";
 import { API_BASE_URL } from "@/lib/api";
+// import { useRouter } from "next/navigation";
 
 import {
   Building2,
@@ -104,7 +105,7 @@ export default function AdminControllerPage() {
   };
 
   const addHall = async () => {
-    const token = localStorage.getItem("token");
+    const token = getValidToken();
 
     if (!hallName || !capacity) {
       alert("Name and capacity required");

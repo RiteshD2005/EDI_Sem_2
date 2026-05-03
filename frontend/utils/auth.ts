@@ -1,4 +1,6 @@
 export const getValidToken = () => {
+  if (typeof window === 'undefined') return null;
+
   const auth = localStorage.getItem("auth");
 
   if (!auth) return null;
