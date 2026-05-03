@@ -14,7 +14,7 @@ import com.seminar.bookingsystem.model.User;
 
 @RestController
 @RequestMapping("/admin/halls")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "https://edi-sem-2.vercel.app")
 public class AdminHallController {
 
     private final HallService hallService;

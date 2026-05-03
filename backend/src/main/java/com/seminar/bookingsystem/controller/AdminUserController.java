@@ -8,7 +8,7 @@ import com.seminar.bookingsystem.service.UserService;
 
 @RestController
 @RequestMapping("/admin")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "https://edi-sem-2.vercel.app")
 public class AdminUserController {
 
     private final UserService userService;

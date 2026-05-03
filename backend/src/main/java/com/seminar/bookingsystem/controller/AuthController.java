@@ -12,7 +12,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/auth")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "https://edi-sem-2.vercel.app")
 public class AuthController {
 
     private final AuthService authService;

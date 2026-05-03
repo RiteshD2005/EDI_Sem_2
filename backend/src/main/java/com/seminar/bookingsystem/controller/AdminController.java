@@ -12,7 +12,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/admin")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "https://edi-sem-2.vercel.app")
 public class AdminController {
 
     private final BookingService bookingService;

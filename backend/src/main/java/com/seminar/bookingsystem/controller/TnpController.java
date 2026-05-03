@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/tnp")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "https://edi-sem-2.vercel.app")
 public class TnpController {
 
     private final TnpService tnpService;

@@ -11,8 +11,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/user")
-@CrossOrigin(origins = "http://localhost:3000")
-
+@CrossOrigin(origins = "https://edi-sem-2.vercel.app")
 public class UserController {
     private final UserRepository userRepository;
     private final UserService userService;
