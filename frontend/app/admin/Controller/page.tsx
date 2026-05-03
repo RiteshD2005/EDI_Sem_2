@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { API_BASE_URL } from "@/lib/api";
+import { useRouter } from "next/navigation";
 import {
   Building2,
   Users,
@@ -13,6 +14,8 @@ import {
   Loader2,
   AlertCircle,
 } from "lucide-react";
+import { get } from "http";
+import { getValidToken } from "@/utils/auth";
 
 type Hall = {
   id: number;
@@ -22,6 +25,7 @@ type Hall = {
 };
 
 export default function AdminControllerPage() {
+  const router = useRouter();
   const [halls, setHalls] = useState<Hall[]>([]);
   const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState("");
@@ -39,7 +43,11 @@ export default function AdminControllerPage() {
   const [visibility, setVisibility] = useState("PUBLIC");
   const [coordinatorEmail, setCoordinatorEmail] = useState("");
 
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const token = getValidToken();
+
+  if (!token) {
+    router.push("/login");
+  }
 
   // Auto-dismiss notification after 4 seconds
   useEffect(() => {

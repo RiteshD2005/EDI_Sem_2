@@ -19,7 +19,8 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/halls")
-@CrossOrigin(origins = "https://edi-sem-2.vercel.app")
+// @CrossOrigin(origins = "https://edi-sem-2.vercel.app")
+@CrossOrigin(origins = "http://localhost:3000")
 public class HallController {
 
     private final HallService hallService;
