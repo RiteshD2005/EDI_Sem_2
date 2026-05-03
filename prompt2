@@ -1,0 +1,109 @@
+this is my authservice 
+package com.seminar.bookingsystem.service;
+
+import org.springframework.stereotype.Service;
+
+import com.seminar.bookingsystem.dto.LoginRequest;
+import com.seminar.bookingsystem.dto.RegisterRequest;
+import com.seminar.bookingsystem.model.User;
+import com.seminar.bookingsystem.repository.UserRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+
+@Service
+public class AuthService {
+    
+    private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    public AuthService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+    
+    public User register(RegisterRequest request){
+        User user = new User();
+        user.setFull_name(request.getName());
+        user.setEmail(request.getEmail());
+
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        
+        user.setRole(User.Role.valueOf(request.getRole()));
+
+        return userRepository.save(user);
+    }
+
+    public User login(LoginRequest request){
+        User user = userRepository
+            .findByEmail(request.getEmail())
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if(!passwordEncoder.matches(request.getPassword(), user.getPassword())){
+            throw new RuntimeException("Invalid email or password");
+        }
+
+        return user;
+    }
+}
+
+
+this is my registration and login dto
+package com.seminar.bookingsystem.dto;
+
+import  lombok.Data;
+
+@Data
+public class RegisterRequest {
+
+    private String email;
+    private String password;
+    private String name;
+    private String role;
+    // private String phoneNumber;
+}
+
+package com.seminar.bookingsystem.dto;
+
+import lombok.Data;
+
+@Data
+public class LoginRequest {
+    
+    private String email;
+    private String password;
+    
+}
+
+
+this is my controller
+package com.seminar.bookingsystem.controller;
+
+import org.springframework.web.bind.annotation.*;
+
+import com.seminar.bookingsystem.dto.LoginRequest;
+import com.seminar.bookingsystem.dto.RegisterRequest;
+import com.seminar.bookingsystem.model.User;
+import com.seminar.bookingsystem.service.AuthService;
+
+@RestController
+@RequestMapping("/auth")
+@CrossOrigin(origins = "http://localhost:3000")
+public class AuthController {
+
+    private final AuthService authService;
+
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
+
+    @PostMapping("/register")
+    public User register(@RequestBody RegisterRequest request) {
+        return authService.register(request);
+    }
+
+    @PostMapping("/login")
+    public User login(@RequestBody LoginRequest request) {
+        return authService.login(request);
+    }
+}
+
+

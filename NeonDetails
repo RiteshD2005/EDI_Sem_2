@@ -1,0 +1,14 @@
+postgresql://neondb_owner:npg_Af0QovKIjeN4@ep-muddy-lake-an7q2442.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require
+
+Host
+ep-muddy-lake-an7q2442.c-6.us-east-1.aws.neon.tech
+Database
+neondb
+Role
+neondb_owner
+Password
+************
+Pooler host
+ep-muddy-lake-an7q2442-pooler.c-6.us-east-1.aws.neon.tech
+
+npx neonctl@latest init
