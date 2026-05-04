@@ -38,7 +38,7 @@ export default function TnpHistoryPage() {
     }
 
     // ✅ Fixed URL: removed duplicate '/api' – matches backend endpoint
-    fetch(`${API_BASE_URL}/tnp/my-requests`, {
+    fetch(`${API_BASE_URL}/api/tnp/my-requests`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(async (res) => {
