@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, use } from "react";
 import { API_BASE_URL } from "@/lib/api";
 import { getValidToken } from "@/utils/auth";
 import { useRouter } from "next/navigation";
@@ -35,12 +35,9 @@ export default function MonthlyViewPage() {
   const today = new Date();
   const [month, setMonth] = useState(today.getMonth() + 1);
   const [year, setYear] = useState(today.getFullYear());
+  const router = useRouter();
   const token = getValidToken();
-const router = useRouter();
 
-  if (!token) {
-    router.push("/login");
-  }
 
   const generateEmptyRows = useCallback(() => {
     const daysInMonth = new Date(year, month, 0).getDate();
@@ -153,7 +150,11 @@ const router = useRouter();
   }, [token, year, month, generateEmptyRows]);
 
   useEffect(() => {
-    fetchData();
+    if (!token) {
+      router.push("/login");
+    } else {
+      fetchData();
+    }
   }, [fetchData]);
 
   return (

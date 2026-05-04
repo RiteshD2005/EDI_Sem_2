@@ -43,12 +43,6 @@ export default function AdminControllerPage() {
   const [visibility, setVisibility] = useState("PUBLIC");
   const [coordinatorEmail, setCoordinatorEmail] = useState("");
 
-  const token = getValidToken();
-
-  if (!token) {
-    router.push("/login");
-  }
-
   // Auto-dismiss notification after 4 seconds
   useEffect(() => {
     if (notification) {
@@ -58,7 +52,7 @@ export default function AdminControllerPage() {
   }, [notification]);
 
   // Fetch Halls
-  const fetchHalls = async () => {
+  const fetchHalls = async (token: any) => {
     if (!token) {
       setNotification({ type: "error", message: "Authentication token missing" });
       setLoading(false);
@@ -66,6 +60,7 @@ export default function AdminControllerPage() {
     }
     setLoading(true);
     try {
+      console.log("TOKEN:", token);
       const res = await fetch(`${API_BASE_URL}/admin/halls`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -163,7 +158,13 @@ export default function AdminControllerPage() {
   };
 
   useEffect(() => {
-    fetchHalls();
+    const token = getValidToken();
+
+    if (!token) {
+      router.push("/login");
+    } else {
+      fetchHalls(token);
+    }
   }, []);
 
   // Toggle Hall Active/Inactive

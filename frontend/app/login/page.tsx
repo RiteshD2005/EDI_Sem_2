@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { API_BASE_URL } from "@/lib/api";
-import { getValidToken } from "@/utils/auth";
 
 export default function LoginPage() {
   const router = useRouter();
