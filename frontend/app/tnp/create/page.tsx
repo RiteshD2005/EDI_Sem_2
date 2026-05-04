@@ -81,7 +81,6 @@ export default function CreateTnpPage() {
       .then((data) => {
         const hallsArray = Array.isArray(data) ? data : [];
         setHalls(hallsArray);
-        // Group by type
         const grouped: GroupedHalls = {
           HALL: hallsArray.filter((h: Hall) => h.type === "HALL"),
           CLASSROOM: hallsArray.filter((h: Hall) => h.type === "CLASSROOM"),
@@ -102,7 +101,6 @@ export default function CreateTnpPage() {
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    // Clear conflict error when user changes drive type
     if (name === "driveType") setConflictError("");
   };
 
@@ -119,7 +117,6 @@ export default function CreateTnpPage() {
     setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }));
   };
 
-  // Improved auto-assign with priority based on drive type
   const autoAssignHalls = () => {
     const requiredStrength = formData.expectedStudents;
     if (requiredStrength <= 0) {
@@ -127,26 +124,13 @@ export default function CreateTnpPage() {
       return;
     }
 
-    // Define priority order for hall types based on drive type
     let priorityOrder: Array<keyof GroupedHalls> = [];
     if (formData.driveType === "Test") {
       priorityOrder = ["LAB", "CLASSROOM", "HALL", "CABIN"];
     } else {
-      // Placement / Internship
       priorityOrder = ["HALL", "CLASSROOM", "LAB", "CABIN"];
     }
 
-    // Collect all halls in priority order (each hall appears once)
-    const sortedHalls: Hall[] = [];
-    for (const type of priorityOrder) {
-      sortedHalls.push(...groupedHalls[type]);
-    }
-
-    // Sort each group by capacity (ascending) to avoid over‑selecting large halls?
-    // Actually for auto‑assign, we want to pick smallest halls first to exactly meet capacity.
-    // But we need to respect priority order: first try all halls of highest priority type (sorted by capacity),
-    // then move to next type.
-    // Simpler: filter halls by priority order and sort each group by capacity.
     const prioritizedHalls: Hall[] = [];
     for (const type of priorityOrder) {
       const hallsOfType = [...groupedHalls[type]].sort((a, b) => a.capacity - b.capacity);
@@ -186,8 +170,8 @@ export default function CreateTnpPage() {
   };
 
   const checkConflicts = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) throw new Error("Unauthorized");
+    const token = getValidToken();
+    if (!token) throw new Error("Unauthorized: No valid token");
 
     const res = await fetch(`${API_BASE_URL}/api/tnp/check-conflicts`, {
       method: "POST",
@@ -225,10 +209,11 @@ export default function CreateTnpPage() {
       const conflictResult = await checkConflicts();
       if (conflictResult.conflicts && conflictResult.conflicts.length > 0) {
         setConflictError("Some halls already booked. Admin approval will override.");
-        // Optionally, still allow submission – just show warning
       }
 
-      const token = localStorage.getItem("token");
+      const token = getValidToken();
+      if (!token) throw new Error("Authentication token missing");
+
       const createRes = await fetch(`${API_BASE_URL}/api/tnp/create`, {
         method: "POST",
         headers: {
@@ -269,7 +254,6 @@ export default function CreateTnpPage() {
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto">
-        {/* Header with back button */}
         <div className="mb-6 flex items-center gap-4">
           <button
             onClick={() => router.back()}
@@ -285,7 +269,6 @@ export default function CreateTnpPage() {
           </div>
         </div>
 
-        {/* Error/Success Messages */}
         {error && (
           <div className="mb-6 flex items-center gap-2 bg-red-50 border border-red-200 rounded-md p-3 text-sm text-red-700">
             <AlertCircle className="h-4 w-4" />
@@ -306,7 +289,6 @@ export default function CreateTnpPage() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-8">
-          {/* Basic Info Card */}
           <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
             <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <Building2 className="h-5 w-5 text-indigo-600" />
@@ -359,7 +341,6 @@ export default function CreateTnpPage() {
             </div>
           </div>
 
-          {/* Schedule Card */}
           <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
             <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <Clock className="h-5 w-5 text-indigo-600" />
@@ -395,7 +376,6 @@ export default function CreateTnpPage() {
             </div>
           </div>
 
-          {/* Additional Details Card */}
           <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
             <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <Users className="h-5 w-5 text-indigo-600" />
@@ -433,7 +413,6 @@ export default function CreateTnpPage() {
             </div>
           </div>
 
-          {/* Halls Selection Card (Grouped by Type) */}
           <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
             <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
               <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
@@ -455,7 +434,6 @@ export default function CreateTnpPage() {
               </div>
             </div>
 
-            {/* Total Capacity of Selected Halls */}
             {formData.hallIds.length > 0 && (
               <div className="mb-4 p-2 bg-gray-50 rounded-lg text-sm">
                 <span className="font-medium text-gray-700">Total Capacity:</span>{" "}
@@ -472,7 +450,6 @@ export default function CreateTnpPage() {
               </div>
             )}
 
-            {/* Grouped Halls with collapsible sections */}
             <div className="space-y-4">
               {(["HALL", "CLASSROOM", "LAB", "CABIN"] as const).map((type) => {
                 const hallsOfType = groupedHalls[type];
@@ -539,7 +516,6 @@ export default function CreateTnpPage() {
             )}
           </div>
 
-          {/* Submit Buttons */}
           <div className="flex justify-end gap-3 pt-4">
             <button
               type="button"

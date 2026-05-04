@@ -20,7 +20,7 @@ type Request = {
   startTime: string;
   endTime: string;
   expectedStudents: number;
-  status: "PENDING" | "APPROVED" | "REJECTED" ; // null possible from backend
+  status: "PENDING" | "APPROVED" | "REJECTED";
   halls: Hall[] | string[];
 };
 
@@ -37,7 +37,8 @@ export default function TnpHistoryPage() {
       return;
     }
 
-    fetch(`${API_BASE_URL}/api/tnp/my-requests`, {
+    // ✅ Fixed URL: removed duplicate '/api' – matches backend endpoint
+    fetch(`${API_BASE_URL}/tnp/my-requests`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(async (res) => {
@@ -49,7 +50,6 @@ export default function TnpHistoryPage() {
       })
       .then((data) => {
         const raw = Array.isArray(data) ? data : [];
-        // Fix null statuses and ensure valid data
         const sanitized = raw.map((req: Request) => ({
           ...req,
           status: req.status || "PENDING",
@@ -98,7 +98,6 @@ export default function TnpHistoryPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-6">
-      {/* Back button */}
       <button
         onClick={() => router.back()}
         className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-indigo-600 transition mb-2"
