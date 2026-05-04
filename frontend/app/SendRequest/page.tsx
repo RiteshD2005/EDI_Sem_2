@@ -16,7 +16,6 @@ import {
   Tag,
   ArrowLeft,
 } from "lucide-react";
-import { get } from "http";
 
 interface Hall {
   id: number;
@@ -194,7 +193,6 @@ export default function RequestPage() {
     if (!formData.eventDescription) return "Event description is required";
     if (!formData.resourcesNeeded) return "Resources needed is required";
 
-    // Student-specific validations
     if (userRole === "STUDENT") {
       if (!formData.coordinatorName) return "Coordinator name is required";
       if (!formData.coordinatorPhone) return "Coordinator phone is required";
@@ -225,13 +223,11 @@ export default function RequestPage() {
     return null;
   };
 
-  // Handler for text inputs (used by Field components)
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Handler for select and textarea (union type)
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -270,16 +266,24 @@ export default function RequestPage() {
       eventTitle: formData.eventTitle,
       eventDescription: formData.eventDescription,
       resourcesNeeded: formData.resourcesNeeded,
+      contactPhone: contactPhone, // Include contact phone
     };
 
-    // Add coordinator info only for students
     if (userRole === "STUDENT") {
       payload.coordinatorName = formData.coordinatorName;
       payload.coordinatorPhone = formData.coordinatorPhone;
     }
 
+    // 🔥 FIX: Use getValidToken() instead of direct localStorage
+    const token = getValidToken();
+    if (!token) {
+      setError("Authentication token missing. Please login again.");
+      setLoading(false);
+      router.push("/login");
+      return;
+    }
+
     try {
-      const token = localStorage.getItem("token");
       const res = await fetch(`${API_BASE_URL}/booking/create`, {
         method: "POST",
         headers: {
@@ -290,7 +294,7 @@ export default function RequestPage() {
       });
 
       if (!res.ok) {
-        const errorData = await res.json();
+        const errorData = await res.json().catch(() => ({}));
         throw new Error(errorData.message || "Failed to submit request");
       }
 
@@ -340,7 +344,6 @@ export default function RequestPage() {
         </div>
 
         <div className="bg-white shadow-lg rounded-xl overflow-hidden">
-          {/* Form Header */}
           <div className="bg-linear-to-r from-indigo-600 to-indigo-800 px-6 py-8">
             <h1 className="text-2xl font-bold text-white">Request a Seminar Hall</h1>
             <p className="text-indigo-100 mt-1">
@@ -348,7 +351,6 @@ export default function RequestPage() {
             </p>
           </div>
 
-          {/* Error & Success Messages */}
           {(error || success) && (
             <div className="px-6 py-4 border-b">
               {error && (
@@ -376,7 +378,7 @@ export default function RequestPage() {
                   label="User Name"
                   name="userName"
                   value={formData.userName}
-                  onChange={() => { }}
+                  onChange={() => {}}
                   disabled
                   icon={UserIcon}
                 />
@@ -621,7 +623,6 @@ export default function RequestPage() {
               </div>
             </div>
 
-            {/* Form Actions */}
             <div className="flex justify-end gap-3 pt-4 border-t">
               <button
                 type="button"

@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState, useCallback, use } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { API_BASE_URL } from "@/lib/api";
 import { getValidToken } from "@/utils/auth";
 import { useRouter } from "next/navigation";
-
 
 type RawBooking = {
   date?: string;
@@ -31,16 +30,21 @@ type DisplayRow = {
 export default function MonthlyViewPage() {
   const [rows, setRows] = useState<DisplayRow[]>([]);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const today = new Date();
   const [month, setMonth] = useState(today.getMonth() + 1);
   const [year, setYear] = useState(today.getFullYear());
   const router = useRouter();
-  const token = getValidToken();
 
+  // Helper: days in month (month is 1‑indexed)
+  const getDaysInMonth = useCallback((y: number, m: number) => {
+    return new Date(y, m, 0).getDate();
+  }, []);
 
+  // Generate empty rows for the current month/year
   const generateEmptyRows = useCallback(() => {
-    const daysInMonth = new Date(year, month, 0).getDate();
+    const daysInMonth = getDaysInMonth(year, month);
     return Array.from({ length: daysInMonth }, (_, i) => ({
       day: i + 1,
       hall: "",
@@ -50,16 +54,32 @@ export default function MonthlyViewPage() {
       time: "",
       phone: "",
     }));
-  }, [year, month]);
+  }, [year, month, getDaysInMonth]);
 
-  const fetchData = useCallback(async () => {
+  // Safe date parser that extracts day number without timezone shifts
+  const getDayFromDateString = (dateStr: string): number | null => {
+    // Try to parse as YYYY-MM-DD first (most common from backend)
+    const match = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (match) {
+      return parseInt(match[3], 10);
+    }
+    // Fallback: UTC parse to avoid timezone issues
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return null;
+    return date.getUTCDate();
+  };
+
+  const fetchData = useCallback(async (isRefresh = false) => {
+    const token = getValidToken();
     if (!token) {
       setError("Authentication token missing");
       setRows(generateEmptyRows());
       return;
     }
-    setLoading(true);
+    if (isRefresh) setRefreshing(true);
+    else setLoading(true);
     setError(null);
+
     try {
       const url = `${API_BASE_URL}/admin/month-view?year=${year}&month=${month}`;
       console.log("Fetching:", url);
@@ -71,36 +91,33 @@ export default function MonthlyViewPage() {
         try {
           const errorBody = await res.text();
           if (errorBody) errorText += `: ${errorBody}`;
-        } catch { }
+        } catch {}
         throw new Error(errorText);
       }
       const data = await res.json();
       console.log("BACKEND DATA:", data);
-      console.log("Year:", year, "Month:", month); // 🔍 Debug log
+      console.log("Year:", year, "Month:", month);
 
-      // ✅ Ensure bookings is an array
       const bookings: RawBooking[] = Array.isArray(data) ? data : [];
 
-      // Group by day number with safe date parsing
+      // Group bookings by day number (using UTC day)
       const bookingsByDay: Record<number, RawBooking[]> = {};
       for (const b of bookings) {
-        // Try multiple possible date fields
         const rawDate = b.date || b.eventDate || b.startTime;
         if (!rawDate) {
           console.warn("No date field in booking:", b);
           continue;
         }
-        const parsedDate = new Date(rawDate);
-        if (isNaN(parsedDate.getTime())) {
+        const dayNum = getDayFromDateString(rawDate);
+        if (dayNum === null) {
           console.error("Invalid date from backend:", b);
           continue;
         }
-        const dayNum = parsedDate.getDate();
         if (!bookingsByDay[dayNum]) bookingsByDay[dayNum] = [];
         bookingsByDay[dayNum].push(b);
       }
 
-      const daysInMonth = new Date(year, month, 0).getDate();
+      const daysInMonth = getDaysInMonth(year, month);
       const allRows: DisplayRow[] = [];
 
       for (let day = 1; day <= daysInMonth; day++) {
@@ -118,14 +135,14 @@ export default function MonthlyViewPage() {
         } else {
           for (const booking of dayBookings) {
             const nameParts = booking.name.split(" / ");
-            const formattedName = nameParts.length > 1
-              ? `${nameParts[0]} / ${nameParts[1]}`
-              : nameParts[0];
+            const formattedName =
+              nameParts.length > 1
+                ? `${nameParts[0]} / ${nameParts[1]}`
+                : nameParts[0];
 
             const phoneParts = booking.phone.split(" / ");
-            const formattedPhone = phoneParts.length > 1
-              ? `${phoneParts[0]} / ${phoneParts[1]}`
-              : phoneParts[0];
+            const formattedPhone =
+              phoneParts.length > 1 ? `${phoneParts[0]} / ${phoneParts[1]}` : phoneParts[0];
 
             allRows.push({
               day,
@@ -146,22 +163,32 @@ export default function MonthlyViewPage() {
       setRows(generateEmptyRows());
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
-  }, [token, year, month, generateEmptyRows]);
+  }, [year, month, generateEmptyRows, getDaysInMonth]);
 
+  // Initial load and when month/year changes
   useEffect(() => {
+    const token = getValidToken();
     if (!token) {
       router.push("/login");
     } else {
       fetchData();
     }
-  }, [fetchData]);
+  }, [fetchData, router]);
+
+  // Manual refresh handler
+  const handleRefresh = () => {
+    fetchData(true);
+  };
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Monthly Booking View</h1>
-        <p className="text-sm text-gray-500">All days shown – empty rows where no booking exists</p>
+        <p className="text-sm text-gray-500">
+          All days shown – empty rows where no booking exists
+        </p>
       </div>
 
       <div className="flex gap-4 flex-wrap">
@@ -183,10 +210,11 @@ export default function MonthlyViewPage() {
           className="border px-3 py-2 rounded-lg w-28 bg-white"
         />
         <button
-          onClick={fetchData}
-          className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
+          onClick={handleRefresh}
+          disabled={loading || refreshing}
+          className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50"
         >
-          Refresh
+          {refreshing ? "Refreshing..." : "Refresh"}
         </button>
       </div>
 
@@ -200,7 +228,9 @@ export default function MonthlyViewPage() {
         {loading ? (
           <div className="p-6 text-center text-gray-500">Loading...</div>
         ) : rows.length === 0 ? (
-          <div className="p-6 text-center text-gray-500">No data for this month</div>
+          <div className="p-6 text-center text-gray-500">
+            No data for this month
+          </div>
         ) : (
           <table className="min-w-full border-collapse text-sm">
             <thead className="bg-gray-100 text-gray-700">
@@ -208,8 +238,12 @@ export default function MonthlyViewPage() {
                 <th className="border px-4 py-3 text-left font-semibold">Date</th>
                 <th className="border px-4 py-3 text-left font-semibold">Hall</th>
                 <th className="border px-4 py-3 text-left font-semibold">Name</th>
-                <th className="border px-4 py-3 text-left font-semibold">Event Details</th>
-                <th className="border px-4 py-3 text-left font-semibold">Event Type</th>
+                <th className="border px-4 py-3 text-left font-semibold">
+                  Event Details
+                </th>
+                <th className="border px-4 py-3 text-left font-semibold">
+                  Event Type
+                </th>
                 <th className="border px-4 py-3 text-left font-semibold">Time</th>
                 <th className="border px-4 py-3 text-left font-semibold">Phone</th>
               </tr>
@@ -218,7 +252,9 @@ export default function MonthlyViewPage() {
               {rows.map((row, idx) => (
                 <tr key={idx} className="border-b hover:bg-gray-50">
                   <td className="border px-4 py-3 text-center">{row.day}</td>
-                  <td className="border px-4 py-3 text-gray-700">{row.hall || "—"}</td>
+                  <td className="border px-4 py-3 text-gray-700">
+                    {row.hall || "—"}
+                  </td>
                   <td className="border px-4 py-3 font-medium">{row.name || "—"}</td>
                   <td className="border px-4 py-3">{row.event || "—"}</td>
                   <td className="border px-4 py-3">{row.eventType || "—"}</td>
@@ -232,8 +268,13 @@ export default function MonthlyViewPage() {
       </div>
 
       <div className="text-xs text-gray-400 border-t pt-4">
-        <p>📅 The Date column shows only the day number (month/year selected above).</p>
-        <p>👥 Name and Phone show faculty alone, or student/faculty separated by '/' when applicable.</p>
+        <p>
+          📅 The Date column shows only the day number (month/year selected above).
+        </p>
+        <p>
+          👥 Name and Phone show faculty alone, or student/faculty separated by '/'
+          when applicable.
+        </p>
         <p>📌 Days without any booking appear as empty rows.</p>
       </div>
     </div>

@@ -116,9 +116,9 @@ export default function AdminControllerPage() {
         body: JSON.stringify({
           name: hallName,
           capacity: Number(capacity),
-          halllocation: hallLocation,
+          location: hallLocation,
           amenities: amenities,
-          imageUrls: imageLinks,
+          imageUrls: imageLinks.length ? imageLinks : [],
           type: hallType,
           visibility: visibility,
           coordinatorEmail: coordinatorEmail || null
