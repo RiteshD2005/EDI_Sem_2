@@ -43,10 +43,10 @@ public class HallController {
         return hallService.getAllHalls(user);
     }
 
-    @PostMapping
-    public Hall AddHall(@RequestBody HallRequest request) {
-        return hallService.AddHall(request);
-    }
+    // @PostMapping
+    // public Hall AddHall(@RequestBody HallRequest request) {
+    //     return hallService.AddHall(request);
+    // }
 
     @PutMapping("/{id}/toggle")
     public Hall toggleHall(@PathVariable Long id) {
