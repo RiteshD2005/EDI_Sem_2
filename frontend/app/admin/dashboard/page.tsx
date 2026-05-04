@@ -27,7 +27,6 @@ import {
   Building2,
   GraduationCap,
 } from "lucide-react";
-import router from "next/router";
 
 // Booking type
 type Booking = {
@@ -97,7 +96,6 @@ export default function AdminDashboard() {
   // Fetch bookings
   const fetchBookings = async () => {
     const token = getValidToken();
-
     if (!token) {
       router.push("/login");
       return;
@@ -116,13 +114,13 @@ export default function AdminDashboard() {
     }
   };
 
-  // Fetch TNP requests
+  // Fetch TNP requests – FIXED URL (no duplicate /api)
   const fetchTnpRequests = async () => {
-    const token = localStorage.getItem("token");
+    const token = getValidToken();
     if (!token) return;
     try {
       setTnpLoading(true);
-      const res = await fetch(`${API_BASE_URL}/api/tnp/pending`, {
+      const res = await fetch(`${API_BASE_URL}/tnp/pending`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error("Failed to fetch TNP requests");
@@ -169,9 +167,9 @@ export default function AdminDashboard() {
     currentPage * PAGE_SIZE
   );
 
-  // Approve/Reject for bookings
+  // Approve/Reject for bookings – FIXED token retrieval
   const handleApproveReject = async (id: number, action: "APPROVE" | "REJECT") => {
-    const token = localStorage.getItem("token");
+    const token = getValidToken();
     if (!token) return;
 
     setActionLoading(true);
@@ -199,13 +197,13 @@ export default function AdminDashboard() {
     }
   };
 
-  // Approve TNP request with loading
+  // Approve TNP request – FIXED token retrieval and URL
   const approveTnp = async (id: number) => {
-    const token = localStorage.getItem("token");
+    const token = getValidToken();
     if (!token) return;
     setTnpActionLoading(id);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/tnp/approve/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/tnp/approve/${id}`, {
         method: "PUT",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -220,14 +218,14 @@ export default function AdminDashboard() {
     }
   };
 
-  // Reject TNP request with loading
+  // Reject TNP request – FIXED token retrieval and URL
   const rejectTnp = async (id: number) => {
     const reason = prompt("Optional rejection reason:");
-    const token = localStorage.getItem("token");
+    const token = getValidToken();
     if (!token) return;
     setTnpActionLoading(id);
     try {
-      const url = `${API_BASE_URL}/api/tnp/reject/${id}${reason ? `?note=${encodeURIComponent(reason)}` : ""}`;
+      const url = `${API_BASE_URL}/tnp/reject/${id}${reason ? `?note=${encodeURIComponent(reason)}` : ""}`;
       const res = await fetch(url, { method: "PUT", headers: { Authorization: `Bearer ${token}` } });
       if (!res.ok) throw new Error("Rejection failed");
       alert("TNP request rejected");
@@ -301,32 +299,34 @@ export default function AdminDashboard() {
       <div className="flex gap-2 mt-4 border-b border-gray-200 pb-2">
         <button
           onClick={() => setActiveSection("BOOKINGS")}
-          className={`px-4 py-2 rounded-lg font-medium transition ${activeSection === "BOOKINGS"
+          className={`px-4 py-2 rounded-lg font-medium transition ${
+            activeSection === "BOOKINGS"
               ? "bg-indigo-600 text-white shadow"
               : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-            }`}
+          }`}
         >
           📋 Bookings
         </button>
         <button
           onClick={() => setActiveSection("TNP")}
-          className={`px-4 py-2 rounded-lg font-medium transition ${activeSection === "TNP"
+          className={`px-4 py-2 rounded-lg font-medium transition ${
+            activeSection === "TNP"
               ? "bg-indigo-600 text-white shadow"
               : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-            }`}
+          }`}
         >
           🎓 TNP Requests
         </button>
       </div>
 
-      {/* Metric Cards (only for Bookings section) */}
-      if (activeSection === `BOOKINGS`) {
+      {/* Metric Cards (only for Bookings section) – FIXED: conditional render */}
+      {activeSection === "BOOKINGS" && (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
           <MetricCard title="Total Requests" value={stats.total} color="blue" />
           <MetricCard title="Pending Requests" value={stats.pending} color="yellow" />
           <MetricCard title="Today's Bookings" value={stats.today} color="indigo" />
         </div>
-      }
+      )}
 
       {/* ================= BOOKINGS SECTION ================= */}
       {activeSection === "BOOKINGS" && (
@@ -337,16 +337,17 @@ export default function AdminDashboard() {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`rounded-full px-4 py-2 text-sm font-medium transition ${activeTab === tab
+                  className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                    activeTab === tab
                       ? "bg-indigo-600 text-white shadow"
                       : "bg-white text-gray-600 hover:bg-gray-100"
-                    }`}
+                  }`}
                 >
                   {tab === "PENDING"
                     ? "Pending"
                     : tab === "APPROVED"
-                      ? "Approved"
-                      : "Rejected / Cancelled"}
+                    ? "Approved"
+                    : "Rejected / Cancelled"}
                 </button>
               ))}
             </div>
@@ -427,10 +428,11 @@ export default function AdminDashboard() {
                         <button
                           key={pageNum}
                           onClick={() => setCurrentPage(pageNum)}
-                          className={`px-4 py-2 text-sm font-semibold ${currentPage === pageNum
+                          className={`px-4 py-2 text-sm font-semibold ${
+                            currentPage === pageNum
                               ? "bg-indigo-600 text-white"
                               : "text-gray-900 ring-1 ring-gray-300 hover:bg-gray-50"
-                            }`}
+                          }`}
                         >
                           {pageNum}
                         </button>
@@ -472,12 +474,13 @@ export default function AdminDashboard() {
                     <p className="text-sm text-gray-500 mt-0.5">{req.driveType}</p>
                   </div>
                   <span
-                    className={`px-3 py-1 rounded-full text-xs font-semibold ${req.status === "PENDING"
+                    className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                      req.status === "PENDING"
                         ? "bg-yellow-100 text-yellow-800"
                         : req.status === "APPROVED"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
+                        ? "bg-green-100 text-green-800"
+                        : "bg-red-100 text-red-800"
+                    }`}
                   >
                     {req.status}
                   </span>
@@ -486,7 +489,9 @@ export default function AdminDashboard() {
                 <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-600">
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4" />
-                    <span>{formatDateTime(req.startTime)} → {formatDateTime(req.endTime)}</span>
+                    <span>
+                      {formatDateTime(req.startTime)} → {formatDateTime(req.endTime)}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Users className="h-4 w-4" />
@@ -495,7 +500,7 @@ export default function AdminDashboard() {
                   {req.halls && req.halls.length > 0 && (
                     <div className="flex items-center gap-2 col-span-full">
                       <Building2 className="h-4 w-4" />
-                      <span>Halls: {req.halls.map(h => h.name).join(", ")}</span>
+                      <span>Halls: {req.halls.map((h) => h.name).join(", ")}</span>
                     </div>
                   )}
                   {req.description && (
@@ -555,7 +560,7 @@ export default function AdminDashboard() {
 }
 
 // ============================================================
-// Helper Components
+// Helper Components (unchanged except for minor fixes)
 // ============================================================
 
 function MetricCard({ title, value, color }: { title: string; value: number; color: "blue" | "yellow" | "indigo" }) {
