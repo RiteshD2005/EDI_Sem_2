@@ -14,7 +14,6 @@ import {
   Loader2,
   AlertCircle,
 } from "lucide-react";
-import { get } from "http";
 import { getValidToken } from "@/utils/auth";
 
 type Hall = {
@@ -100,7 +99,7 @@ export default function AdminControllerPage() {
   };
 
   const addHall = async () => {
-    const token = localStorage.getItem("token");
+    const token = getValidToken();
 
     if (!hallName || !capacity) {
       alert("Name and capacity required");
@@ -120,7 +119,6 @@ export default function AdminControllerPage() {
           halllocation: hallLocation,
           amenities: amenities,
           imageUrls: imageLinks,
-
           type: hallType,
           visibility: visibility,
           coordinatorEmail: coordinatorEmail || null
@@ -139,8 +137,13 @@ export default function AdminControllerPage() {
       setCapacity("");
       setHallLocation("");
       setAmenities([]);
+      setImageLinks([]);
+      setHallType("");
+      setVisibility("PUBLIC");
+      setCoordinatorEmail("");
 
-      fetchHalls(); // 🔥 refresh list
+      // ✅ refresh list with valid token
+      await fetchHalls(getValidToken());
     } catch (err) {
       console.error(err);
       alert("Failed to add hall");
@@ -169,7 +172,11 @@ export default function AdminControllerPage() {
 
   // Toggle Hall Active/Inactive
   const toggleHall = async (id: number, current: boolean) => {
-    if (!token) return;
+    const token = getValidToken();
+    if (!token) {
+      setNotification({ type: "error", message: "Authentication token missing" });
+      return;
+    }
 
     setTogglingId(id);
 
@@ -211,6 +218,12 @@ export default function AdminControllerPage() {
 
   // Add Admin with proper error handling
   const addAdmin = async () => {
+    const token = getValidToken();
+    if (!token) {
+      setNotification({ type: "error", message: "Authentication token missing" });
+      return;
+    }
+
     if (!email.trim()) {
       setNotification({ type: "error", message: "Please enter an email address" });
       return;
@@ -347,7 +360,7 @@ export default function AdminControllerPage() {
 
           </div>
 
-          {/* 🔥 NEW FIELDS */}
+          {/* NEW FIELDS */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
 
             {/* TYPE */}
@@ -475,7 +488,6 @@ export default function AdminControllerPage() {
         </div>
         <span className="text-sm text-gray-500">{halls.length} total</span>
       </div>
-
 
       {loading ? (
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
