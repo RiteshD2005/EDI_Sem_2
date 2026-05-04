@@ -120,7 +120,7 @@ export default function AdminDashboard() {
     if (!token) return;
     try {
       setTnpLoading(true);
-      const res = await fetch(`${API_BASE_URL}/tnp/pending`, {
+      const res = await fetch(`${API_BASE_URL}/api/tnp/pending`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error("Failed to fetch TNP requests");
@@ -203,7 +203,7 @@ export default function AdminDashboard() {
     if (!token) return;
     setTnpActionLoading(id);
     try {
-      const res = await fetch(`${API_BASE_URL}/tnp/approve/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/tnp/approve/${id}`, {
         method: "PUT",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -225,7 +225,7 @@ export default function AdminDashboard() {
     if (!token) return;
     setTnpActionLoading(id);
     try {
-      const url = `${API_BASE_URL}/tnp/reject/${id}${reason ? `?note=${encodeURIComponent(reason)}` : ""}`;
+      const url = `${API_BASE_URL}/api/tnp/reject/${id}${reason ? `?note=${encodeURIComponent(reason)}` : ""}`;
       const res = await fetch(url, { method: "PUT", headers: { Authorization: `Bearer ${token}` } });
       if (!res.ok) throw new Error("Rejection failed");
       alert("TNP request rejected");
